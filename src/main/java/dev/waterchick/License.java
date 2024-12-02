@@ -1,19 +1,17 @@
 package dev.waterchick;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.util.concurrent.CompletableFuture;
 
 public class License {
 
     private final String pluginId;
     private final String licenseId;
-    private final static String LICENSE_HOST = "http://89.203.248.250:8080/licenses/validate";
+    private final static String LICENSE_HOST = "https://license.waterchick.dev/licenses/validate";
 
-    public License(String pluginId, String licenseId) throws IOException {
+    public License(String pluginId, String licenseId) {
         this.pluginId = pluginId;
         this.licenseId = licenseId;
     }

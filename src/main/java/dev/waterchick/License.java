@@ -1,9 +1,14 @@
 package dev.waterchick;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.concurrent.CompletableFuture;
 
 public class License {
 
@@ -21,32 +26,33 @@ public class License {
             throw new IllegalStateException("This method can only be called asynchronously.");
         }
 
-        // Odeslat požadavek na backend
-        String jsonInputString = String.format("{\"licenseId\": \"%s\", \"pluginId\": \"%s\"}", licenseId, pluginId); // JSON payload
+        // JSON payload
+        String jsonInputString = String.format("{\"licenseId\": \"%s\", \"pluginId\": \"%s\"}", licenseId, pluginId);
 
         try {
-            // Vytvoření URL a spojení
-            URL url = URI.create(LICENSE_HOST).toURL();
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json; utf-8");
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setDoOutput(true);
+            // Vytvoření klienta
+            HttpClient client = HttpClient.newHttpClient();
 
-            // Odeslání požadavku
-            try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
+            // Vytvoření požadavku
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(LICENSE_HOST))
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonInputString))
+                    .build();
 
-            // Získání kódu odpovědi
-            int responseCode = connection.getResponseCode();
+            // Odeslání požadavku a získání odpovědi
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            // Porovnání kódu odpovědi a vrácení boolean
-            return responseCode == HttpURLConnection.HTTP_OK; // Kontroluje kód 202 (Accepted)
+            // Debug výpis
+            System.out.println("Response Code: " + response.statusCode());
+            System.out.println("Response Body: " + response.body());
+
+            // Vrácení výsledku
+            return response.statusCode() == 200; // Kontroluje kód 200 (OK)
         } catch (Exception e) {
             e.printStackTrace();
-            return false; // Vrátí false v případě chyby
+            return false;
         }
     }
 

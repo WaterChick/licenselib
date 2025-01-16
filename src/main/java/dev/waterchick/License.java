@@ -25,15 +25,10 @@ public class License {
         if (Thread.currentThread().getName().equals("main")) {
             throw new IllegalStateException("This method can only be called asynchronously.");
         }
-
-        // JSON payload
         String jsonInputString = String.format("{\"licenseId\": \"%s\", \"pluginId\": \"%s\"}", licenseId, pluginId);
 
         try {
-            // Vytvoření klienta
             HttpClient client = HttpClient.newHttpClient();
-
-            // Vytvoření požadavku
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(LICENSE_HOST))
                     .header("Content-Type", "application/json")
@@ -41,15 +36,8 @@ public class License {
                     .POST(HttpRequest.BodyPublishers.ofString(jsonInputString))
                     .build();
 
-            // Odeslání požadavku a získání odpovědi
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            // Debug výpis
-            System.out.println("Response Code: " + response.statusCode());
-            System.out.println("Response Body: " + response.body());
-
-            // Vrácení výsledku
-            return response.statusCode() == 200; // Kontroluje kód 200 (OK)
+            return response.statusCode() == 200;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
